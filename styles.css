@@ -1126,3 +1126,141 @@ img {
     padding: 110px 0 60px;
   }
 }
+
+/* ── Blog Grid ─────────────────────────────────── */
+.blog-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 2rem;
+}
+
+.blog-card {
+  background: var(--white);
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.blog-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+.blog-card-content {
+  padding: 1.75rem;
+}
+
+.blog-date {
+  font-size: 0.8rem;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.blog-card h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem;
+  margin-bottom: 0.75rem;
+  line-height: 1.4;
+}
+
+.blog-card h2 a {
+  color: var(--text-dark);
+  text-decoration: none;
+}
+
+.blog-card h2 a:hover {
+  color: var(--primary);
+}
+
+.blog-card p {
+  font-size: 0.9rem;
+  color: var(--text-light);
+  margin-bottom: 1.25rem;
+  line-height: 1.7;
+}
+
+/* ── Blog Post Page ────────────────────────────── */
+.blog-post {
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.blog-back {
+  display: inline-block;
+  color: var(--primary);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 2rem;
+}
+
+.blog-back:hover {
+  text-decoration: underline;
+}
+
+.blog-post-body {
+  font-size: 1rem;
+  line-height: 1.8;
+  color: var(--text-dark);
+  margin-bottom: 3rem;
+}
+
+.blog-post-body p {
+  margin-bottom: 1.25rem;
+}
+
+.blog-post-body h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.35rem;
+  margin: 2rem 0 0.75rem;
+  color: var(--text-dark);
+}
+
+.blog-post-body ul {
+  margin: 0.5rem 0 1.25rem 1.5rem;
+}
+
+.blog-post-body ul li {
+  margin-bottom: 0.5rem;
+}
+
+.blog-post-body blockquote {
+  border-left: 4px solid var(--primary);
+  padding: 0.75rem 1.25rem;
+  margin: 1.5rem 0;
+  background: #f9f5f3;
+  border-radius: 0 8px 8px 0;
+  font-style: italic;
+  color: var(--text-light);
+  font-size: 0.95rem;
+}
+
+.blog-signature {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  margin-top: 2rem;
+  color: var(--primary);
+}
+
+.blog-cta-box {
+  background: linear-gradient(135deg, #f8e8e0, #fdf4f0);
+  border-radius: 16px;
+  padding: 2rem;
+  text-align: center;
+  margin: 2rem 0;
+}
+
+.blog-cta-box h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+  margin-bottom: 0.5rem;
+}
+
+.blog-cta-box p {
+  color: var(--text-light);
+  margin-bottom: 1.25rem;
+}
+
