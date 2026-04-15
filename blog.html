@@ -44,7 +44,10 @@
 
   <section class="section">
     <div class="container">
-      <div class="blog-grid fade-in">
+      <div class="blog-grid fade-in" id="dynamicPosts">
+        <!-- Dynamic posts from admin loaded here -->
+      </div>
+      <div class="blog-grid fade-in" id="staticPosts">
 
         <article class="blog-card">
           <div class="blog-card-content">
@@ -85,6 +88,31 @@
       </div>
     </div>
   </section>
+
+  <script>
+    const SUPABASE_URL = 'https://kouembkldbpdbhzeaoth.supabase.co';
+    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtvdWVtYmtsZGJwZGJoemVhb3RoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4Mjk3NDAsImV4cCI6MjA5MDQwNTc0MH0.aMeh94o7Zd1zqIH8kprOMYdc4s1_2g9Ecxk0Es7TiJw';
+
+    fetch(`${SUPABASE_URL}/rest/v1/blissful_blog_posts?published=eq.true&select=*&order=published_at.desc`, {
+      headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + SUPABASE_ANON }
+    })
+    .then(r => r.json())
+    .then(posts => {
+      if (!posts.length) return;
+      const container = document.getElementById('dynamicPosts');
+      container.innerHTML = posts.map(p => `
+        <article class="blog-card">
+          <div class="blog-card-content">
+            <p class="blog-date">${p.published_at ? new Date(p.published_at).toLocaleDateString('en-AU', {day:'numeric', month:'long', year:'numeric'}) : ''}</p>
+            <h2><a href="blog-post.html?slug=${encodeURIComponent(p.slug)}">${p.title}</a></h2>
+            <p>${p.excerpt || ''}</p>
+            <a href="blog-post.html?slug=${encodeURIComponent(p.slug)}" class="btn btn-outline">Read More</a>
+          </div>
+        </article>
+      `).join('');
+    })
+    .catch(() => {}); // Silently fail — static posts still show
+  </script>
 
   <!-- Footer -->
   <footer class="footer">

@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog Admin — Blissful Sleep Solutions</title>
+  <link rel="icon" href="images/logo.jpg" type="image/jpeg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --lavender: #9B8EC4;
+      --lavender-dark: #7B6FA0;
+      --cream: #FDF8F4;
+      --cream-dark: #F5EDE4;
+      --gold: #D4A574;
+      --text-dark: #2D2640;
+      --text-body: #4A4358;
+      --text-light: #7A7189;
+      --white: #FFFFFF;
+      --shadow-md: 0 4px 20px rgba(45,38,64,0.08);
+      --radius: 16px;
+    }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--text-body); min-height: 100vh; }
+
+    /* LOGIN */
+    .login-wrap { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 2rem; }
+    .login-card { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow-md); padding: 3rem 2.5rem; width: 100%; max-width: 400px; text-align: center; }
+    .login-card img { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-bottom: 1.5rem; }
+    .login-card h1 { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--text-dark); margin-bottom: 0.5rem; }
+    .login-card p { color: var(--text-light); margin-bottom: 2rem; font-size: 0.9rem; }
+
+    /* ADMIN LAYOUT */
+    .admin-wrap { display: none; max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
+    .admin-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; flex-wrap: gap; gap: 1rem; }
+    .admin-header h1 { font-family: 'Playfair Display', serif; color: var(--text-dark); font-size: 1.8rem; }
+    .admin-tabs { display: flex; gap: 0.5rem; margin-bottom: 2rem; }
+    .tab-btn { padding: 0.5rem 1.2rem; border-radius: 50px; border: 2px solid var(--lavender); background: transparent; color: var(--lavender); font-family: 'DM Sans', sans-serif; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .tab-btn.active { background: var(--lavender); color: var(--white); }
+
+    /* POSTS LIST */
+    .posts-table { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow-md); overflow: hidden; }
+    .posts-table table { width: 100%; border-collapse: collapse; }
+    .posts-table th { background: var(--cream-dark); padding: 1rem 1.2rem; text-align: left; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-light); }
+    .posts-table td { padding: 1rem 1.2rem; border-bottom: 1px solid var(--cream-dark); vertical-align: middle; }
+    .posts-table tr:last-child td { border-bottom: none; }
+    .posts-table tr:hover td { background: var(--cream); }
+    .status-badge { display: inline-block; padding: 0.2rem 0.7rem; border-radius: 50px; font-size: 0.75rem; font-weight: 600; }
+    .status-published { background: #d4edda; color: #155724; }
+    .status-draft { background: #fff3cd; color: #856404; }
+    .btn-sm { padding: 0.3rem 0.8rem; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; border: none; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
+    .btn-edit { background: var(--lavender); color: var(--white); }
+    .btn-edit:hover { background: var(--lavender-dark); }
+    .btn-delete { background: #f8d7da; color: #842029; margin-left: 0.4rem; }
+    .btn-delete:hover { background: #f5c2c7; }
+    .btn-toggle { background: #d4edda; color: #155724; margin-left: 0.4rem; }
+    .btn-toggle.unpublish { background: #fff3cd; color: #856404; }
+
+    /* EDITOR */
+    .editor-card { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow-md); padding: 2rem; }
+    .editor-card h2 { font-family: 'Playfair Display', serif; color: var(--text-dark); margin-bottom: 1.5rem; }
+    .form-row { margin-bottom: 1.2rem; }
+    .form-row label { display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 0.4rem; color: var(--text-dark); }
+    .form-row input, .form-row textarea, .form-row select {
+      width: 100%; padding: 0.75rem 1rem; border: 2px solid var(--cream-dark);
+      border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 0.95rem;
+      color: var(--text-body); background: var(--cream); transition: border 0.2s;
+    }
+    .form-row input:focus, .form-row textarea:focus { outline: none; border-color: var(--lavender); background: var(--white); }
+    .form-row textarea { min-height: 350px; resize: vertical; line-height: 1.6; }
+    .form-actions { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1.5rem; }
+    .form-hint { font-size: 0.78rem; color: var(--text-light); margin-top: 0.3rem; }
+    .toolbar { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.5rem; }
+    .toolbar button { padding: 0.3rem 0.7rem; border: 1px solid var(--cream-dark); border-radius: 6px; background: var(--white); cursor: pointer; font-size: 0.8rem; font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
+    .toolbar button:hover { background: var(--lavender); color: var(--white); border-color: var(--lavender); }
+
+    /* SHARED COMPONENTS */
+    .btn { display: inline-block; padding: 0.75rem 1.8rem; border-radius: 50px; font-weight: 600; font-size: 0.95rem; cursor: pointer; border: none; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
+    .btn-primary { background: var(--lavender); color: var(--white); }
+    .btn-primary:hover { background: var(--lavender-dark); }
+    .btn-secondary { background: transparent; border: 2px solid var(--lavender); color: var(--lavender); }
+    .btn-secondary:hover { background: var(--lavender); color: var(--white); }
+    .btn-outline { background: transparent; border: 2px solid #dee2e6; color: var(--text-body); }
+    .btn-outline:hover { background: var(--cream-dark); }
+    .btn-gold { background: var(--gold); color: var(--white); }
+    .btn-gold:hover { background: #c4945f; }
+    .alert { padding: 0.9rem 1.2rem; border-radius: 10px; margin-bottom: 1rem; font-size: 0.9rem; }
+    .alert-success { background: #d4edda; color: #155724; }
+    .alert-error { background: #f8d7da; color: #842029; }
+    input[type="password"], input[type="text"], input[type="email"] { display: block; width: 100%; }
+    .form-row-inline { display: flex; gap: 1rem; }
+    .form-row-inline .form-row { flex: 1; }
+    .empty-state { text-align: center; padding: 3rem; color: var(--text-light); }
+    .empty-state p { margin-bottom: 1rem; }
+    .preview-section { background: var(--cream-dark); border-radius: 10px; padding: 1.5rem; margin-top: 1rem; }
+    .preview-section h4 { margin-bottom: 0.5rem; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-light); }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="loginScreen">
+  <div class="login-card">
+    <img src="images/logo.jpg" alt="Blissful Sleep Solutions">
+    <h1>Blog Admin</h1>
+    <p>Blissful Sleep Solutions</p>
+    <div id="loginAlert"></div>
+    <div class="form-row">
+      <label for="adminPassword">Password</label>
+      <input type="password" id="adminPassword" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')login()">
+    </div>
+    <button class="btn btn-primary" style="width:100%;margin-top:0.5rem" onclick="login()">Sign In</button>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div class="admin-wrap" id="adminWrap">
+  <div class="admin-header">
+    <h1>📝 Blog Admin</h1>
+    <div style="display:flex;gap:0.75rem;align-items:center">
+      <a href="blog.html" target="_blank" class="btn btn-outline btn-sm" style="padding:0.4rem 1rem;font-size:0.85rem">View Blog ↗</a>
+      <button class="btn btn-outline btn-sm" style="padding:0.4rem 1rem;font-size:0.85rem;color:#842029;border-color:#f5c2c7" onclick="logout()">Logout</button>
+    </div>
+  </div>
+
+  <div id="adminAlert"></div>
+
+  <div class="admin-tabs">
+    <button class="tab-btn active" id="tabPosts" onclick="showTab('posts')">All Posts</button>
+    <button class="tab-btn" id="tabNew" onclick="showTab('editor'); newPost()">+ New Post</button>
+  </div>
+
+  <!-- POSTS LIST -->
+  <div id="panelPosts">
+    <div class="posts-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="postsTableBody">
+          <tr><td colspan="4" class="empty-state"><p>Loading posts…</p></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- EDITOR -->
+  <div id="panelEditor" style="display:none">
+    <div class="editor-card">
+      <h2 id="editorTitle">New Post</h2>
+      <input type="hidden" id="postId">
+
+      <div class="form-row-inline">
+        <div class="form-row">
+          <label for="postTitle">Title *</label>
+          <input type="text" id="postTitle" placeholder="e.g. 5 Tips for Toddler Sleep" oninput="autoSlug()">
+        </div>
+        <div class="form-row">
+          <label for="postSlug">URL Slug *</label>
+          <input type="text" id="postSlug" placeholder="e.g. 5-tips-toddler-sleep">
+          <p class="form-hint">Auto-generated from title. Edit if needed.</p>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label for="postExcerpt">Excerpt (shown on blog listing page)</label>
+        <input type="text" id="postExcerpt" placeholder="Short summary of the post (1–2 sentences)">
+      </div>
+
+      <div class="form-row">
+        <label>Content *</label>
+        <div class="toolbar">
+          <button onclick="insertTag('<h2>','</h2>')"><b>H2</b></button>
+          <button onclick="insertTag('<h3>','</h3>')"><b>H3</b></button>
+          <button onclick="insertTag('<p>','</p>')">P</button>
+          <button onclick="insertTag('<strong>','</strong>')"><b>B</b></button>
+          <button onclick="insertTag('<em>','</em>')"><i>I</i></button>
+          <button onclick="insertTag('<ul>\n  <li>','</li>\n</ul>')">• List</button>
+          <button onclick="insertTag('<li>','</li>')">• Item</button>
+          <button onclick="insertTag('<br>','')">BR</button>
+          <button onclick="insertTag('<a href=\"\">','</a>')">Link</button>
+        </div>
+        <textarea id="postContent" placeholder="Write your blog post content here using HTML tags, or just plain paragraphs wrapped in <p> tags.&#10;&#10;Example:&#10;<p>Your first paragraph here.</p>&#10;<p>Second paragraph here.</p>"></textarea>
+        <p class="form-hint">Use the toolbar buttons to insert formatting. Each paragraph should be wrapped in &lt;p&gt; tags.</p>
+      </div>
+
+      <div class="form-row">
+        <label for="postCover">Cover Image URL (optional)</label>
+        <input type="text" id="postCover" placeholder="https://... (leave blank if no image)">
+        <p class="form-hint">Link to an image. You can upload to a free service like imgbb.com and paste the URL here.</p>
+      </div>
+
+      <div class="form-row">
+        <label for="postPublished">Status</label>
+        <select id="postPublished">
+          <option value="false">Draft (not visible on site)</option>
+          <option value="true">Published (live on site)</option>
+        </select>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-primary" onclick="savePost()">Save Post</button>
+        <button class="btn btn-gold" onclick="savePost(true)">Save &amp; Publish</button>
+        <button class="btn btn-outline" onclick="showTab('posts')">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://kouembkldbpdbhzeaoth.supabase.co';
+  const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtvdWVtYmtsZGJwZGJoemVhb3RoIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NDgyOTc0MCwiZXhwIjoyMDkwNDA1NzQwfQ.F1OqSiOWqXJ5se40mwC82uSfPt418iTs7Omrbd9RZMM';
+  const ADMIN_PASSWORD = 'blissful2024!';
+
+  function sbFetch(path, options = {}) {
+    return fetch(SUPABASE_URL + path, {
+      ...options,
+      headers: {
+        'apikey': SUPABASE_ANON,
+        'Authorization': 'Bearer ' + SUPABASE_ANON,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation',
+        ...(options.headers || {})
+      }
+    });
+  }
+
+  function login() {
+    const pw = document.getElementById('adminPassword').value;
+    if (pw === ADMIN_PASSWORD) {
+      sessionStorage.setItem('bss_admin', '1');
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('adminWrap').style.display = 'block';
+      loadPosts();
+    } else {
+      document.getElementById('loginAlert').innerHTML = '<div class="alert alert-error">Incorrect password.</div>';
+    }
+  }
+
+  function logout() {
+    sessionStorage.removeItem('bss_admin');
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('adminWrap').style.display = 'none';
+    document.getElementById('adminPassword').value = '';
+  }
+
+  function showAlert(msg, type = 'success', target = 'adminAlert') {
+    const el = document.getElementById(target);
+    el.innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
+    setTimeout(() => el.innerHTML = '', 4000);
+  }
+
+  function showTab(tab) {
+    document.getElementById('panelPosts').style.display = tab === 'posts' ? 'block' : 'none';
+    document.getElementById('panelEditor').style.display = tab === 'editor' ? 'block' : 'none';
+    document.getElementById('tabPosts').className = 'tab-btn' + (tab === 'posts' ? ' active' : '');
+    document.getElementById('tabNew').className = 'tab-btn' + (tab === 'editor' ? ' active' : '');
+    if (tab === 'posts') loadPosts();
+  }
+
+  async function loadPosts() {
+    const res = await sbFetch('/rest/v1/blissful_blog_posts?select=*&order=created_at.desc');
+    const posts = await res.json();
+    const tbody = document.getElementById('postsTableBody');
+    if (!posts.length) {
+      tbody.innerHTML = '<tr><td colspan="4"><div class="empty-state"><p>No posts yet.</p><button class="btn btn-primary btn-sm" onclick="showTab(\'editor\');newPost()">Write your first post</button></div></td></tr>';
+      return;
+    }
+    tbody.innerHTML = posts.map(p => `
+      <tr>
+        <td><strong>${escHtml(p.title)}</strong></td>
+        <td><span class="status-badge ${p.published ? 'status-published' : 'status-draft'}">${p.published ? 'Published' : 'Draft'}</span></td>
+        <td style="font-size:0.85rem;color:var(--text-light)">${p.published_at ? new Date(p.published_at).toLocaleDateString('en-AU', {day:'numeric',month:'short',year:'numeric'}) : '—'}</td>
+        <td>
+          <button class="btn-sm btn-edit" onclick="editPost('${p.id}')">Edit</button>
+          <button class="btn-sm btn-toggle ${p.published ? 'unpublish' : ''}" onclick="togglePublish('${p.id}', ${p.published})">${p.published ? 'Unpublish' : 'Publish'}</button>
+          <button class="btn-sm btn-delete" onclick="deletePost('${p.id}', '${escHtml(p.title)}')">Delete</button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  function newPost() {
+    document.getElementById('postId').value = '';
+    document.getElementById('postTitle').value = '';
+    document.getElementById('postSlug').value = '';
+    document.getElementById('postExcerpt').value = '';
+    document.getElementById('postContent').value = '';
+    document.getElementById('postCover').value = '';
+    document.getElementById('postPublished').value = 'false';
+    document.getElementById('editorTitle').textContent = 'New Post';
+  }
+
+  async function editPost(id) {
+    const res = await sbFetch(`/rest/v1/blissful_blog_posts?id=eq.${id}&select=*`);
+    const [p] = await res.json();
+    document.getElementById('postId').value = p.id;
+    document.getElementById('postTitle').value = p.title;
+    document.getElementById('postSlug').value = p.slug;
+    document.getElementById('postExcerpt').value = p.excerpt || '';
+    document.getElementById('postContent').value = p.content;
+    document.getElementById('postCover').value = p.cover_image || '';
+    document.getElementById('postPublished').value = String(p.published);
+    document.getElementById('editorTitle').textContent = 'Edit Post';
+    showTab('editor');
+  }
+
+  async function savePost(publish = false) {
+    const title = document.getElementById('postTitle').value.trim();
+    const slug = document.getElementById('postSlug').value.trim();
+    const content = document.getElementById('postContent').value.trim();
+    if (!title || !slug || !content) { showAlert('Title, slug, and content are required.', 'error'); return; }
+
+    const id = document.getElementById('postId').value;
+    const isPublished = publish || document.getElementById('postPublished').value === 'true';
+    const body = {
+      title, slug, content,
+      excerpt: document.getElementById('postExcerpt').value.trim() || null,
+      cover_image: document.getElementById('postCover').value.trim() || null,
+      published: isPublished,
+      published_at: isPublished ? new Date().toISOString() : null,
+      updated_at: new Date().toISOString()
+    };
+
+    let res;
+    if (id) {
+      res = await sbFetch(`/rest/v1/blissful_blog_posts?id=eq.${id}`, { method: 'PATCH', body: JSON.stringify(body) });
+    } else {
+      res = await sbFetch('/rest/v1/blissful_blog_posts', { method: 'POST', body: JSON.stringify(body) });
+    }
+
+    if (res.ok) {
+      showAlert(isPublished ? 'Post saved and published! ✓' : 'Post saved as draft. ✓');
+      showTab('posts');
+    } else {
+      const err = await res.json();
+      showAlert('Error: ' + (err.message || err.details || 'Unknown error'), 'error');
+    }
+  }
+
+  async function togglePublish(id, currentlyPublished) {
+    const isPublished = !currentlyPublished;
+    await sbFetch(`/rest/v1/blissful_blog_posts?id=eq.${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ published: isPublished, published_at: isPublished ? new Date().toISOString() : null, updated_at: new Date().toISOString() })
+    });
+    loadPosts();
+    showAlert(isPublished ? 'Post published! ✓' : 'Post unpublished.');
+  }
+
+  async function deletePost(id, title) {
+    if (!confirm(`Delete "${title}"? This cannot be undone.`)) return;
+    await sbFetch(`/rest/v1/blissful_blog_posts?id=eq.${id}`, { method: 'DELETE' });
+    loadPosts();
+    showAlert('Post deleted.');
+  }
+
+  function autoSlug() {
+    const title = document.getElementById('postTitle').value;
+    document.getElementById('postSlug').value = title.toLowerCase().replace(/[^a-z0-9\s-]/g,'').trim().replace(/\s+/g,'-');
+  }
+
+  function insertTag(open, close) {
+    const ta = document.getElementById('postContent');
+    const start = ta.selectionStart, end = ta.selectionEnd;
+    const selected = ta.value.substring(start, end);
+    ta.value = ta.value.substring(0, start) + open + selected + close + ta.value.substring(end);
+    ta.focus();
+    ta.setSelectionRange(start + open.length, start + open.length + selected.length);
+  }
+
+  function escHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // Auto-login if session active
+  if (sessionStorage.getItem('bss_admin')) {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('adminWrap').style.display = 'block';
+    loadPosts();
+  }
+</script>
+</body>
+</html>
