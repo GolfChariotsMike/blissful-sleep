@@ -45,58 +45,7 @@
   <section class="section">
     <div class="container">
       <div class="blog-grid fade-in" id="dynamicPosts">
-        <!-- Dynamic posts from admin loaded here -->
-      </div>
-      <div class="blog-grid fade-in" id="staticPosts">
-
-        <article class="blog-card">
-          <a href="blog-benefits-of-sleep-for-parents.html">
-            <img class="blog-card-image" src="https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=600&q=80" alt="Parents resting with baby">
-          </a>
-          <div class="blog-card-content">
-            <p class="blog-date">23 February 2023</p>
-            <h2><a href="blog-benefits-of-sleep-for-parents.html">The Benefits of Adequate Sleep for Parents</a></h2>
-            <p>Did you know that adequate rest can help strengthen the bond between you and your kids? When parents are feeling energised and connected, they are more likely to form a strong bond. Find out how sleep plays an important role in creating that connection.</p>
-            <a href="blog-benefits-of-sleep-for-parents.html" class="btn btn-outline">Read More</a>
-          </div>
-        </article>
-
-        <article class="blog-card">
-          <a href="blog-swaddling.html">
-            <img class="blog-card-image" src="https://images.unsplash.com/photo-1555252333-9f8e92e65df9?w=600&q=80" alt="Swaddled newborn baby">
-          </a>
-          <div class="blog-card-content">
-            <p class="blog-date">5 March 2020</p>
-            <h2><a href="blog-swaddling.html">Swaddling – Why? Benefits and my favourite products</a></h2>
-            <p>Everyone talks about swaddling your baby, but no one ever explains why. Learn how swaddling works, the benefits for you and your baby, and Leanne's favourite swaddle products.</p>
-            <a href="blog-swaddling.html" class="btn btn-outline">Read More</a>
-          </div>
-        </article>
-
-        <article class="blog-card">
-          <a href="blog-snoring-mouth-breathing.html">
-            <img class="blog-card-image" src="https://images.unsplash.com/photo-1531171673193-06ea9e25e0b9?w=600&q=80" alt="Child sleeping peacefully">
-          </a>
-          <div class="blog-card-content">
-            <p class="blog-date">24 February 2020</p>
-            <h2><a href="blog-snoring-mouth-breathing.html">Snoring, Mouth Breathing, Allergies — how do they affect Sleep?</a></h2>
-            <p>Written from personal experience after Leanne's son had his adenoids and tonsils removed. Learn the signs of Sleep Related Breathing Disorders and when to seek help.</p>
-            <a href="blog-snoring-mouth-breathing.html" class="btn btn-outline">Read More</a>
-          </div>
-        </article>
-
-        <article class="blog-card">
-          <a href="blog-my-story.html">
-            <img class="blog-card-image" src="https://images.unsplash.com/photo-1492725764893-90b379c2b6e7?w=600&q=80" alt="Mum with baby">
-          </a>
-          <div class="blog-card-content">
-            <p class="blog-date">16 January 2020</p>
-            <h2><a href="blog-my-story.html">My Story</a></h2>
-            <p>Leanne's personal journey from exhausted, sleep-deprived mum to certified infant and child sleep consultant. A raw and honest story about the challenges of early motherhood.</p>
-            <a href="blog-my-story.html" class="btn btn-outline">Read More</a>
-          </div>
-        </article>
-
+        <p style="color:var(--text-light);text-align:center;padding:3rem 0;grid-column:1/-1">Loading posts…</p>
       </div>
     </div>
   </section>
@@ -110,7 +59,10 @@
     })
     .then(r => r.json())
     .then(posts => {
-      if (!posts.length) return;
+      if (!posts.length) {
+        document.getElementById('dynamicPosts').innerHTML = '<p style="color:var(--text-light);text-align:center;grid-column:1/-1">No posts yet.</p>';
+        return;
+      }
       const container = document.getElementById('dynamicPosts');
       container.innerHTML = posts.map(p => `
         <article class="blog-card">
@@ -124,7 +76,9 @@
         </article>
       `).join('');
     })
-    .catch(() => {}); // Silently fail — static posts still show
+    .catch(() => {
+      document.getElementById('dynamicPosts').innerHTML = '<p style="color:var(--text-light);text-align:center;grid-column:1/-1">Unable to load posts. Please try again later.</p>';
+    });
   </script>
 
   <!-- Footer -->

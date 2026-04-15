@@ -192,9 +192,22 @@
       </div>
 
       <div class="form-row">
-        <label for="postCover">Cover Image URL (optional)</label>
-        <input type="text" id="postCover" placeholder="https://... (leave blank if no image)">
-        <p class="form-hint">Link to an image. You can upload to a free service like imgbb.com and paste the URL here.</p>
+        <label>Cover Image</label>
+        <div style="display:flex;gap:1rem;align-items:flex-start;flex-wrap:wrap">
+          <div style="flex:1;min-width:200px">
+            <input type="file" id="postImageFile" accept="image/*" onchange="previewImage(this)" style="padding:0.5rem;border:2px dashed var(--cream-dark);border-radius:10px;background:var(--cream);width:100%;cursor:pointer">
+            <p class="form-hint">Upload an image from your device (JPG, PNG, WEBP).</p>
+            <div id="uploadProgress" style="display:none;margin-top:0.5rem;font-size:0.85rem;color:var(--lavender)">Uploading…</div>
+          </div>
+          <div style="flex:1;min-width:200px">
+            <input type="text" id="postCover" placeholder="Or paste an image URL here">
+            <p class="form-hint">Or paste a direct image link.</p>
+          </div>
+        </div>
+        <div id="imagePreview" style="margin-top:0.75rem;display:none">
+          <img id="imagePreviewImg" src="" alt="Preview" style="max-height:180px;border-radius:10px;object-fit:cover;border:2px solid var(--cream-dark)">
+          <button type="button" onclick="clearImage()" style="display:block;margin-top:0.4rem;font-size:0.78rem;color:#842029;background:none;border:none;cursor:pointer;padding:0">✕ Remove image</button>
+        </div>
       </div>
 
       <div class="form-row">
@@ -217,6 +230,7 @@
 <script>
   const SUPABASE_URL = 'https://kouembkldbpdbhzeaoth.supabase.co';
   const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtvdWVtYmtsZGJwZGJoemVhb3RoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4Mjk3NDAsImV4cCI6MjA5MDQwNTc0MH0.aMeh94o7Zd1zqIH8kprOMYdc4s1_2g9Ecxk0Es7TiJw';
+  const SUPABASE_SERVICE = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtvdWVtYmtsZGJwZGJoemVhb3RoIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NDgyOTc0MCwiZXhwIjoyMDkwNDA1NzQwfQ.F1OqSiOWqXJ5se40mwC82uSfPt418iTs7Omrbd9RZMM';
   const ADMIN_PASSWORD = 'blissful2026!';
 
   function sbFetch(path, options = {}) {
@@ -308,7 +322,15 @@
     document.getElementById('postContent').value = p.content;
     document.getElementById('postCover').value = p.cover_image || '';
     document.getElementById('postPublished').value = String(p.published);
+    document.getElementById('postImageFile').value = '';
     document.getElementById('editorTitle').textContent = 'Edit Post';
+    // Show current cover image preview
+    if (p.cover_image) {
+      document.getElementById('imagePreviewImg').src = p.cover_image;
+      document.getElementById('imagePreview').style.display = 'block';
+    } else {
+      document.getElementById('imagePreview').style.display = 'none';
+    }
     showTab('editor');
   }
 
@@ -318,12 +340,21 @@
     const content = document.getElementById('postContent').value.trim();
     if (!title || !slug || !content) { showAlert('Title, slug, and content are required.', 'error'); return; }
 
+    // Handle image upload if a file was selected
+    let coverImage = document.getElementById('postCover').value.trim() || null;
+    const fileInput = document.getElementById('postImageFile');
+    if (fileInput.files && fileInput.files[0]) {
+      const uploaded = await uploadImage(fileInput.files[0]);
+      if (uploaded) coverImage = uploaded;
+      else return; // upload failed, abort save
+    }
+
     const id = document.getElementById('postId').value;
     const isPublished = publish || document.getElementById('postPublished').value === 'true';
     const body = {
       title, slug, content,
       excerpt: document.getElementById('postExcerpt').value.trim() || null,
-      cover_image: document.getElementById('postCover').value.trim() || null,
+      cover_image: coverImage,
       published: isPublished,
       published_at: isPublished ? new Date().toISOString() : null,
       updated_at: new Date().toISOString()
@@ -374,6 +405,52 @@
     ta.value = ta.value.substring(0, start) + open + selected + close + ta.value.substring(end);
     ta.focus();
     ta.setSelectionRange(start + open.length, start + open.length + selected.length);
+  }
+
+  function previewImage(input) {
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        document.getElementById('imagePreviewImg').src = e.target.result;
+        document.getElementById('imagePreview').style.display = 'block';
+      };
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+
+  function clearImage() {
+    document.getElementById('postImageFile').value = '';
+    document.getElementById('postCover').value = '';
+    document.getElementById('imagePreview').style.display = 'none';
+    document.getElementById('imagePreviewImg').src = '';
+  }
+
+  async function uploadImage(file) {
+    const ext = file.name.split('.').pop();
+    const filename = `blog-${Date.now()}.${ext}`;
+    const progress = document.getElementById('uploadProgress');
+    progress.style.display = 'block';
+    progress.textContent = 'Uploading image…';
+
+    const res = await fetch(`${SUPABASE_URL}/storage/v1/object/blissful-blog-images/${filename}`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_SERVICE,
+        'Authorization': 'Bearer ' + SUPABASE_SERVICE,
+        'Content-Type': file.type,
+        'x-upsert': 'true'
+      },
+      body: file
+    });
+
+    progress.style.display = 'none';
+    if (res.ok) {
+      return `${SUPABASE_URL}/storage/v1/object/public/blissful-blog-images/${filename}`;
+    } else {
+      const err = await res.json();
+      showAlert('Image upload failed: ' + (err.message || 'Unknown error'), 'error');
+      return null;
+    }
   }
 
   function escHtml(str) {
