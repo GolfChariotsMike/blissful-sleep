@@ -24,7 +24,7 @@ Deno.serve(async (req: Request) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Blissful Sleep Solutions <noreply@blissfulsleepsolutions.com.au>',
+        from: 'Blissful Sleep Solutions <onboarding@resend.dev>',
         to: ['info@blissfulsleepsolutions.com.au'],
         reply_to: email,
         subject: `New enquiry from ${name}`,
